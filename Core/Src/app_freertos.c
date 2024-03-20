@@ -115,9 +115,19 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
+  int i = 0;
+  for(;;) {
+    if (i++ % 2) {
+      HAL_GPIO_TogglePin(HEART_BEAT_GPIO_Port, HEART_BEAT_Pin);
+      HAL_GPIO_TogglePin(AU_KO_GPIO_Port, AU_KO_Pin);
+    } else {
+      HAL_GPIO_TogglePin(AU_OK_GPIO_Port, AU_OK_Pin);
+      HAL_GPIO_TogglePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin);
+    }
+
+    HAL_GPIO_TogglePin(PIL_ALIM_2_GPIO_Port, PIL_ALIM_2_Pin);
+    HAL_GPIO_TogglePin(PIL_ALIM_3_GPIO_Port, PIL_ALIM_3_Pin);
+    osDelay(500);
   }
   /* USER CODE END StartDefaultTask */
 }
