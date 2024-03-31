@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "tim.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,18 +116,36 @@ void StartDefaultTask(void *argument)
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   int i = 0;
+
+  //HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+
+  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 27450);
+
   for(;;) {
+
+    int x;
+    //for(x=10; x<30; x++)
+    //{
+      //__HAL_TIM_SET_AUTORELOAD(&htim2, x*2);
+      //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, x);
+      //HAL_Delay(100);
+    //}
+
     if (i++ % 2) {
       HAL_GPIO_TogglePin(HEART_BEAT_GPIO_Port, HEART_BEAT_Pin);
       HAL_GPIO_TogglePin(AU_KO_GPIO_Port, AU_KO_Pin);
+      //HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
     } else {
       HAL_GPIO_TogglePin(AU_OK_GPIO_Port, AU_OK_Pin);
       HAL_GPIO_TogglePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin);
+      //HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
     }
-
-    HAL_GPIO_TogglePin(PIL_ALIM_2_GPIO_Port, PIL_ALIM_2_Pin);
-    HAL_GPIO_TogglePin(PIL_ALIM_3_GPIO_Port, PIL_ALIM_3_Pin);
-    osDelay(500);
+    if (i % 4) {
+      HAL_GPIO_TogglePin(PIL_ALIM_2_GPIO_Port, PIL_ALIM_2_Pin);
+    } else {
+      HAL_GPIO_TogglePin(PIL_ALIM_3_GPIO_Port, PIL_ALIM_3_Pin);
+    }
+    osDelay(1000);
   }
   /* USER CODE END StartDefaultTask */
 }
