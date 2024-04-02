@@ -26,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tim.h"
+#include "fdcan.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -118,8 +119,27 @@ void StartDefaultTask(void *argument)
   int i = 0;
 
   //HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-
   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 27450);
+
+
+
+  HAL_FDCAN_Start(&hfdcan1);
+
+  FDCAN_TxHeaderTypeDef   TxHeader;
+  uint8_t               TxData[8];
+
+  /* Prepare Tx Header */
+  TxHeader.Identifier = 0x321;
+  TxHeader.IdType = FDCAN_STANDARD_ID;
+  TxHeader.TxFrameType = FDCAN_DATA_FRAME;
+  TxHeader.DataLength = FDCAN_DLC_BYTES_2;
+  TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+  TxHeader.BitRateSwitch = FDCAN_BRS_OFF;
+  TxHeader.FDFormat = FDCAN_CLASSIC_CAN;
+  TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+  TxHeader.MessageMarker = 0;
+
+  uint8_t nbCanMessage = 0;
 
   for(;;) {
 
@@ -131,18 +151,36 @@ void StartDefaultTask(void *argument)
       //HAL_Delay(100);
     //}
 
-    if (i++ % 2) {
+    i++;
+    if (i % 2) {
       HAL_GPIO_TogglePin(HEART_BEAT_GPIO_Port, HEART_BEAT_Pin);
-      HAL_GPIO_TogglePin(AU_KO_GPIO_Port, AU_KO_Pin);
+      //HAL_GPIO_TogglePin(AU_KO_GPIO_Port, AU_KO_Pin);
       //HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
     } else {
-      HAL_GPIO_TogglePin(AU_OK_GPIO_Port, AU_OK_Pin);
-      HAL_GPIO_TogglePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin);
+      //HAL_GPIO_TogglePin(AU_OK_GPIO_Port, AU_OK_Pin);
+      //HAL_GPIO_TogglePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin);
       //HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
     }
     if (i % 4) {
       HAL_GPIO_TogglePin(PIL_ALIM_2_GPIO_Port, PIL_ALIM_2_Pin);
+
+      TxData[0] = nbCanMessage;
+      nbCanMessage++;
+      if (nbCanMessage > 10) {
+        nbCanMessage = 0;
+      }
+
+      /* Start the Transmission process */
+      if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData) != HAL_OK)
+      {
+        //HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+        /* Transmission request Error */
+        Error_Handler();
+        HAL_GPIO_WritePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin, GPIO_PIN_SET);
+      }
+
     } else {
+      //HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
       HAL_GPIO_TogglePin(PIL_ALIM_3_GPIO_Port, PIL_ALIM_3_Pin);
     }
     osDelay(1000);
