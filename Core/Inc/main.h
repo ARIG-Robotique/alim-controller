@@ -31,11 +31,36 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+typedef struct {
+    double tension;
+    double current;
+    bool fault;
+} Alimentation;
+
+typedef struct {
+    double cell1Volt;
+    double cell1Percent;
+    double cell2Volt;
+    double cell2Percent;
+    double cell3Volt;
+    double cell3Percent;
+    double cell4Volt;
+    double cell4Percent;
+    double batteryVolt;
+    double batteryPercent;
+} Battery;
+
+extern Alimentation internalAlim;
+extern Alimentation externalAlim;
+
+extern Battery battery;
+
+extern bool au;
 
 /* USER CODE END ET */
 
@@ -99,6 +124,42 @@ void Error_Handler(void);
 #define AU_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+
+// Tension d'alimentation de référence
+#define V_REF 3.3
+
+// Résolution des convertisseurs ADC de la STM32G474RET6
+#define ADC_RESOLUTION 4096.0
+
+// Valeur de convertion du pont diviseur de tension (13.6 V => 3.3 V)
+// R1 = 1.8K ; R2 = 5.6K
+// Vo = Vi * R1 / (R1 + R2) = Vi * 0.243243243
+#define DIVISEUR_TENSION 0.243243243
+
+// Pourcentage des céllule LIPO
+#define CELL_100 4.20
+#define CELL_90 4.10
+#define CELL_80 3.97
+#define CELL_70 3.92
+#define CELL_60 3.87
+#define CELL_50 3.83
+#define CELL_40 3.79
+#define CELL_30 3.75
+#define CELL_20 3.7
+#define CELL_10 3.6
+#define CELL_5 3.3
+#define CELL_0 3.0
+
+// Résolution pour le courant de l'ACS711 15A alimenté en 3.3V, 90mV / A
+#define ACS_RESOLUTION 90.0/1000.0
+
+// CAN Message ID
+#define SET_ALIM_2 1
+#define SET_ALIM_3 2
+#define GET_VERSION 3
+#define GET_AU_STATE 4
+#define GET_ALIMS_STATE 5
+#define GET_BATTERY_STATE 6
 
 /* USER CODE END Private defines */
 

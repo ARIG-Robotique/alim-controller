@@ -1,7 +1,8 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_1
 ADC1.CommonPathInternal=null|null|null|null
-ADC1.IPParameters=Rank-0\#ChannelRegularConversion,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,OffsetNumber-0\#ChannelRegularConversion,NbrOfConversionFlag,master,CommonPathInternal
+ADC1.IPParameters=Rank-0\#ChannelRegularConversion,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,OffsetNumber-0\#ChannelRegularConversion,NbrOfConversionFlag,master,NbrOfConversion,CommonPathInternal
+ADC1.NbrOfConversion=1
 ADC1.NbrOfConversionFlag=1
 ADC1.OffsetNumber-0\#ChannelRegularConversion=ADC_OFFSET_NONE
 ADC1.Rank-0\#ChannelRegularConversion=1
@@ -15,11 +16,12 @@ FDCAN1.CalculateTimeBitNominal=2000
 FDCAN1.CalculateTimeQuantumNominal=400.0
 FDCAN1.IPParameters=CalculateTimeQuantumNominal,CalculateTimeBitNominal,CalculateBaudRateNominal,NominalPrescaler
 FDCAN1.NominalPrescaler=60
-FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT
+FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT,Timers01
 FREERTOS.Tasks01=defaultTask,24,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.Timers01=heartBeatTimer,heartBeatCallback,osTimerPeriodic,Default,NULL,Dynamic,NULL;adcTimer,adcCallback,osTimerPeriodic,Default,NULL,Dynamic,NULL
 FREERTOS.configUSE_NEWLIB_REENTRANT=1
 File.Version=6
-GPIO.groupedBy=
+GPIO.groupedBy=Group By Peripherals
 I2C2.IPParameters=Timing
 I2C2.Timing=0x20C0EDFF
 KeepUserPlacement=false

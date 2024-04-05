@@ -41,6 +41,15 @@ extern ADC_HandleTypeDef hadc1;
 void MX_ADC1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+void adcSelectInternalAlimVolt(void);
+void adcSelectInternalAlimCurrent(void);
+void adcSelectExternalAlimVolt(void);
+void adcSelectExternalAlimCurrent(void);
+
+void adcSelectCell1Volt(void);
+void adcSelectCell2Volt(void);
+void adcSelectCell3Volt(void);
+void adcSelectCell4Volt(void);
 
 /* USER CODE END Prototypes */
 
