@@ -390,7 +390,7 @@ void adcCallback(void *argument)
 
   if (oldBatteryVolt != battery.batteryVolt) {
     LOG_INFO("adcCallback: Notify Battery");
-  notifyBattery(TxHeader);
+    notifyBattery(TxHeader);
   }
 
   /* USER CODE END adcCallback */
@@ -443,7 +443,7 @@ void notifyAlims(FDCAN_TxHeaderTypeDef txHeader) {
   // 8    : 0 0 0 0 0 0 'ExternalAlim fault' 'Internal Alim fault'
   txBuffer[8] = (externalAlim.fault << 1) + internalAlim.fault;
 
-  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, &txBuffer) != HAL_OK) {
+  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, txBuffer) != HAL_OK) {
     /* Transmission request Error */
     Error_Handler();
   }
@@ -505,7 +505,7 @@ void notifyBattery(FDCAN_TxHeaderTypeDef txHeader) {
   txBuffer[18] = (percent >> 8) & 0xFF;
   txBuffer[19] = percent & 0xFF;
 
-  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, &txBuffer) != HAL_OK) {
+  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, txBuffer) != HAL_OK) {
     /* Transmission request Error */
     Error_Handler();
   }
@@ -516,9 +516,14 @@ void notifyVersion(FDCAN_TxHeaderTypeDef txHeader) {
 
   // Notify
   txHeader.Identifier = GET_VERSION;
-  txHeader.DataLength = 19;
+  txHeader.DataLength = sizeof(FIRMWARE_VERSION);
 
-  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, FIRMWARE_VERSION) != HAL_OK) {
+  uint8_t txBuffer[sizeof(FIRMWARE_VERSION)];
+  for (int i = 0 ; i < sizeof(FIRMWARE_VERSION) ; i++) {
+    txBuffer[i] = FIRMWARE_VERSION[i];
+  }
+
+  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, txBuffer) != HAL_OK) {
     /* Transmission request Error */
     Error_Handler();
   }
