@@ -16,6 +16,7 @@ FDCAN1.CalculateTimeBitNominal=1000
 FDCAN1.CalculateTimeQuantumNominal=200.0
 FDCAN1.IPParameters=CalculateTimeQuantumNominal,CalculateTimeBitNominal,CalculateBaudRateNominal,NominalPrescaler,StdFiltersNbr
 FDCAN1.NominalPrescaler=30
+FDCAN1.StdFiltersNbr=1
 FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT,Timers01
 FREERTOS.Tasks01=defaultTask,24,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL
 FREERTOS.Timers01=heartBeatTimer,heartBeatCallback,osTimerPeriodic,Default,NULL,Dynamic,NULL;adcTimer,adcCallback,osTimerPeriodic,Default,NULL,Dynamic,NULL
