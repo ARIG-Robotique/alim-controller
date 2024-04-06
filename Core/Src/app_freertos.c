@@ -200,7 +200,7 @@ void StartDefaultTask(void *argument)
 #pragma ide diagnostic ignored "EndlessLoop"
   while(true) {
     LOG_INFO("mainTask: Read AU");
-    au = HAL_GPIO_ReadPin(AU_GPIO_Port, AU_Pin) == GPIO_PIN_SET;
+    au = HAL_GPIO_ReadPin(AU_GPIO_Port, AU_Pin) == GPIO_PIN_RESET;
     if (au != auPrec) {
       LOG_INFO("mainTask: AU changed");
       auPrec = au;
@@ -237,17 +237,17 @@ void StartDefaultTask(void *argument)
       } else if (RxHeader.Identifier == SET_ALIM_2) {
         bool enable = RxData[0] & 0x01;
         if (enable) {
-          HAL_GPIO_WritePin(PIL_ALIM_2_GPIO_Port, PIL_ALIM_2_Pin, GPIO_PIN_SET);
-        } else {
           HAL_GPIO_WritePin(PIL_ALIM_2_GPIO_Port, PIL_ALIM_2_Pin, GPIO_PIN_RESET);
+        } else {
+          HAL_GPIO_WritePin(PIL_ALIM_2_GPIO_Port, PIL_ALIM_2_Pin, GPIO_PIN_SET);
         }
 
       } else if (RxHeader.Identifier == SET_ALIM_3) {
         bool enable = RxData[0] & 0x01;
         if (enable) {
-          HAL_GPIO_WritePin(PIL_ALIM_3_GPIO_Port, PIL_ALIM_3_Pin, GPIO_PIN_SET);
-        } else {
           HAL_GPIO_WritePin(PIL_ALIM_3_GPIO_Port, PIL_ALIM_3_Pin, GPIO_PIN_RESET);
+        } else {
+          HAL_GPIO_WritePin(PIL_ALIM_3_GPIO_Port, PIL_ALIM_3_Pin, GPIO_PIN_SET);
         }
       }
     }
