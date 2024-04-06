@@ -183,7 +183,7 @@ void StartDefaultTask(void *argument)
   osTimerStart(adcTimerHandle, 2000);
 
   /* Prepare FDCAN Tx */
-  FDCAN_TxHeaderTypeDef   TxHeader;
+  FDCAN_TxHeaderTypeDef TxHeader;
 
   TxHeader.IdType = FDCAN_STANDARD_ID;
   TxHeader.TxFrameType = FDCAN_DATA_FRAME;
@@ -275,7 +275,7 @@ void adcCallback(void *argument)
 {
   /* USER CODE BEGIN adcCallback */
 
-  FDCAN_TxHeaderTypeDef   TxHeader;
+  FDCAN_TxHeaderTypeDef TxHeader;
 
   TxHeader.IdType = FDCAN_STANDARD_ID;
   TxHeader.TxFrameType = FDCAN_DATA_FRAME;
@@ -324,7 +324,7 @@ void adcCallback(void *argument)
   HAL_ADC_Stop(&hadc1);
   externalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
 
-  LOG_INFO("Notify Alims");
+  LOG_INFO("adcCallback: Notify Alims");
   notifyAlims(TxHeader);
 
   // Read battery
