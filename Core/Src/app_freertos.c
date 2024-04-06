@@ -305,8 +305,8 @@ void adcCallback(void *argument)
   TxHeader.MessageMarker = 0;
 
   // Read fault
-  internalAlim.fault = HAL_GPIO_ReadPin(FAULT_2_GPIO_Port, FAULT_2_Pin) == GPIO_PIN_RESET;
-  externalAlim.fault = HAL_GPIO_ReadPin(FAULT_3_GPIO_Port, FAULT_3_Pin) == GPIO_PIN_RESET;
+  internalAlim.fault = false; //HAL_GPIO_ReadPin(FAULT_2_GPIO_Port, FAULT_2_Pin) == GPIO_PIN_RESET;
+  externalAlim.fault = false; //HAL_GPIO_ReadPin(FAULT_3_GPIO_Port, FAULT_3_Pin) == GPIO_PIN_RESET;
 
   uint32_t rawAdc;
 
