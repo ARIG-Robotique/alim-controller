@@ -249,6 +249,8 @@ void StartDefaultTask(void *argument)
         } else {
           HAL_GPIO_WritePin(PIL_ALIM_3_GPIO_Port, PIL_ALIM_3_Pin, GPIO_PIN_SET);
         }
+      } else {
+        LOG_WARN("mainTask: Unknown message");
       }
     }
     osDelay(50);
