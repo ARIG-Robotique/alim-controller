@@ -76,26 +76,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  LOG_INFO("main: Init variables");
-  internalAlim.tension = 0.0;
-  internalAlim.current = 0.0;
-  internalAlim.fault = false;
-
-  externalAlim.tension = 0.0;
-  externalAlim.current = 0.0;
-  externalAlim.fault = false;
-
-  battery.cell1Volt = 4.2;
-  battery.cell1Percent = 100.0;
-  battery.cell2Volt = 4.2;
-  battery.cell2Percent = 100.0;
-  battery.cell3Volt = 4.2;
-  battery.cell3Percent = 100.0;
-  battery.cell4Volt = 4.2;
-  battery.cell4Percent = 100.0;
-  battery.batteryVolt = 16.8;
-  battery.batteryPercent = 100.0;
-
+  LOG_INFO("main: MCU Configuration");
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -121,9 +102,6 @@ int main(void)
   MX_I2C2_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-
-  LOG_INFO("main: Start FDCan listener");
-  HAL_FDCAN_Start(&hfdcan1);
 
   /* USER CODE END 2 */
 

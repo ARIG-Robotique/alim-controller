@@ -155,10 +155,32 @@ void StartDefaultTask(void *argument)
   }
   HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
 
+  LOG_INFO("mainTask: Init variables");
+  internalAlim.tension = 0.0;
+  internalAlim.current = 0.0;
+  internalAlim.fault = false;
+
+  externalAlim.tension = 0.0;
+  externalAlim.current = 0.0;
+  externalAlim.fault = false;
+
+  battery.cell1Volt = 4.2;
+  battery.cell1Percent = 100.0;
+  battery.cell2Volt = 4.2;
+  battery.cell2Percent = 100.0;
+  battery.cell3Volt = 4.2;
+  battery.cell3Percent = 100.0;
+  battery.cell4Volt = 4.2;
+  battery.cell4Percent = 100.0;
+  battery.batteryVolt = 16.8;
+  battery.batteryPercent = 100.0;
+
+  LOG_INFO("mainTask: Start FDCan listener");
+  HAL_FDCAN_Start(&hfdcan1);
+
   // Start timers after boot init
   osTimerStart(heartBeatTimerHandle, 1000);
   osTimerStart(adcTimerHandle, 2000);
-
 
   /* Prepare FDCAN Tx */
   FDCAN_TxHeaderTypeDef   TxHeader;
