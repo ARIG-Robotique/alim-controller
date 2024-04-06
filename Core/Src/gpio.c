@@ -57,7 +57,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, WARN_BATT_Pin|HEART_BEAT_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, PIL_ALIM_2_Pin|PIL_ALIM_3_Pin|AU_KO_Pin|AU_OK_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, PIL_ALIM_2_Pin|PIL_ALIM_3_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, AU_KO_Pin|AU_OK_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PC13 PC14 PC4 PC5
                            PC6 PC10 PC11 PC12 */
