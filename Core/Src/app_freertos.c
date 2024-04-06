@@ -366,11 +366,15 @@ void adcCallback(void *argument)
   battery.cell4Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
   battery.cell4Percent = lipoCellPercent(battery.cell4Volt);
 
+  double oldBatteryVolt = battery.batteryVolt;
+
   battery.batteryVolt = battery.cell1Volt + battery.cell2Volt + battery.cell3Volt + battery.cell4Volt;
   battery.batteryPercent = (battery.cell1Percent + battery.cell2Percent + battery.cell3Percent + battery.cell4Percent) / 4.0;
 
-  LOG_INFO("Notify Alims");
+  if (oldBatteryVolt != battery.batteryVolt) {
+    LOG_INFO("adcCallback: Notify Battery");
   notifyBattery(TxHeader);
+  }
 
   /* USER CODE END adcCallback */
 }
