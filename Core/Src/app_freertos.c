@@ -263,11 +263,28 @@ void StartDefaultTask(void *argument)
 void heartBeatCallback(void *argument)
 {
   /* USER CODE BEGIN heartBeatCallback */
-  if (!internalAlim.fault && !externalAlim.fault) {
-    HAL_GPIO_TogglePin(HEART_BEAT_GPIO_Port, HEART_BEAT_Pin);
-  } else {
+
+  // Heart Beat LED
+  HAL_GPIO_TogglePin(HEART_BEAT_GPIO_Port, HEART_BEAT_Pin);
+
+  // Battery critical
+  if (battery.batteryPercent < 20) {
+    // Batterie faible
+    if (HAL_GPIO_ReadPin(HEART_BEAT_GPIO_Port, HEART_BEAT_Pin) == GPIO_PIN_SET) {
+      HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+    } else {
+      HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
+    }
+  }
+
+  // Alim in fault or battery low
+  if (internalAlim.fault || externalAlim.fault || battery.batteryPercent < 25) {
     // Alim en erreur
-    HAL_GPIO_WritePin(HEART_BEAT_GPIO_Port, HEART_BEAT_Pin, GPIO_PIN_SET);
+    for (int i = 0 ; i < 5 ; i++) {
+      HAL_GPIO_TogglePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin);
+      osDelay(100);
+    }
+    HAL_GPIO_WritePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin, GPIO_PIN_RESET);
   }
   /* USER CODE END heartBeatCallback */
 }
