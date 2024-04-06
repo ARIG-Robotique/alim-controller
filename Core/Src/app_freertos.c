@@ -151,6 +151,7 @@ void StartDefaultTask(void *argument)
     } else {
       HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
     }
+    osDelay(100);
   }
   HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
 
