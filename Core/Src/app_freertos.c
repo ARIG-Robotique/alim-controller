@@ -537,11 +537,11 @@ void notifyVersion(FDCAN_TxHeaderTypeDef txHeader) {
 
   // Notify
   txHeader.Identifier = GET_VERSION;
-  txHeader.DataLength = sizeof(FIRMWARE_VERSION);
+  txHeader.DataLength = sizeof(VERSION_SHORT);
 
-  uint8_t txBuffer[sizeof(FIRMWARE_VERSION)];
-  for (int i = 0 ; i < sizeof(FIRMWARE_VERSION) ; i++) {
-    txBuffer[i] = FIRMWARE_VERSION[i];
+  uint8_t txBuffer[sizeof(VERSION_SHORT)];
+  for (int i = 0 ; i < sizeof(VERSION_SHORT) ; i++) {
+    txBuffer[i] = VERSION_SHORT[i];
   }
 
   if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, txBuffer) != HAL_OK) {

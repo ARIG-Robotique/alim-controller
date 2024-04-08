@@ -25,7 +25,8 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 string(TIMESTAMP VERSION "%Y.%m.%d")
-add_definitions(-DFIRMWARE_VERSION="${VERSION}-${GIT_HASH}")
+string(TIMESTAMP VERSION_SHORT "%Y%m%d")
+add_definitions(-DFIRMWARE_VERSION="${VERSION}-${GIT_HASH}" -DVERSION_SHORT="${VERSION_SHORT}")
 
 #Uncomment for hardware floating point
 add_compile_definitions(ARM_MATH_CM4;ARM_MATH_MATRIX_CHECK;ARM_MATH_ROUNDING)
