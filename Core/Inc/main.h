@@ -160,6 +160,7 @@ void Error_Handler(void);
 #define GET_AU_STATE 4
 #define GET_ALIMS_STATE 5
 #define GET_BATTERY_STATE 6
+#define GET_SOUND 10
 
 /* USER CODE END Private defines */
 

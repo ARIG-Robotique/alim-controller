@@ -67,7 +67,7 @@ void MX_FDCAN1_Init(void)
   sFilterConfig.FilterType = FDCAN_FILTER_RANGE;
   sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
   sFilterConfig.FilterID1 = 1;
-  sFilterConfig.FilterID2 = 6;
+  sFilterConfig.FilterID2 = 10;
 
   HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilterConfig);
   HAL_FDCAN_ConfigGlobalFilter(
