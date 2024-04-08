@@ -320,8 +320,8 @@ void adcCallback(void *argument)
   TxHeader.MessageMarker = 0;
 
   // Read fault
-  internalAlim.fault = false; //HAL_GPIO_ReadPin(FAULT_2_GPIO_Port, FAULT_2_Pin) == GPIO_PIN_RESET;
-  externalAlim.fault = false; //HAL_GPIO_ReadPin(FAULT_3_GPIO_Port, FAULT_3_Pin) == GPIO_PIN_RESET;
+  internalAlim.fault = HAL_GPIO_ReadPin(FAULT_2_GPIO_Port, FAULT_2_Pin) == GPIO_PIN_RESET;
+  externalAlim.fault = HAL_GPIO_ReadPin(FAULT_3_GPIO_Port, FAULT_3_Pin) == GPIO_PIN_RESET;
 
   uint32_t rawAdc;
 
@@ -349,16 +349,16 @@ void adcCallback(void *argument)
     LOG_INFO("adcCallback: Read ADC External Alim Volt");
     adcSelectExternalAlimVolt();
     HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 1000);
-  rawAdc = HAL_ADC_GetValue(&hadc1);
-  HAL_ADC_Stop(&hadc1);
-  externalAlim.tension = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    rawAdc = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+    externalAlim.tension = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
 
-  LOG_INFO("adcCallback: Read ADC External Alim Current");
-  adcSelectExternalAlimCurrent();
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 1000);
-  rawAdc = HAL_ADC_GetValue(&hadc1);
+    LOG_INFO("adcCallback: Read ADC External Alim Current");
+    adcSelectExternalAlimCurrent();
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    rawAdc = HAL_ADC_GetValue(&hadc1);
     HAL_ADC_Stop(&hadc1);
     externalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
 
@@ -370,39 +370,39 @@ void adcCallback(void *argument)
     // Read battery
     LOG_INFO("adcCallback: Read Battery cell 1");
     adcSelectCell1Volt();
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 1000);
-  rawAdc = HAL_ADC_GetValue(&hadc1);
-  HAL_ADC_Stop(&hadc1);
-  battery.cell1Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
-  battery.cell1Percent = lipoCellPercent(battery.cell1Volt);
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    rawAdc = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+    battery.cell1Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    battery.cell1Percent = lipoCellPercent(battery.cell1Volt);
 
-  LOG_INFO("adcCallback: Read Battery cell 2");
-  adcSelectCell2Volt();
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 1000);
-  rawAdc = HAL_ADC_GetValue(&hadc1);
-  HAL_ADC_Stop(&hadc1);
-  battery.cell2Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
-  battery.cell2Percent = lipoCellPercent(battery.cell2Volt);
+    LOG_INFO("adcCallback: Read Battery cell 2");
+    adcSelectCell2Volt();
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    rawAdc = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+    battery.cell2Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    battery.cell2Percent = lipoCellPercent(battery.cell2Volt);
 
-  LOG_INFO("adcCallback: Read Battery cell 3");
-  adcSelectCell3Volt();
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 1000);
-  rawAdc = HAL_ADC_GetValue(&hadc1);
-  HAL_ADC_Stop(&hadc1);
-  battery.cell3Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
-  battery.cell3Percent = lipoCellPercent(battery.cell3Volt);
+    LOG_INFO("adcCallback: Read Battery cell 3");
+    adcSelectCell3Volt();
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    rawAdc = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+    battery.cell3Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    battery.cell3Percent = lipoCellPercent(battery.cell3Volt);
 
-  LOG_INFO("adcCallback: Read Battery cell 4");
-  adcSelectCell4Volt();
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 1000);
-  rawAdc = HAL_ADC_GetValue(&hadc1);
-  HAL_ADC_Stop(&hadc1);
-  battery.cell4Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
-  battery.cell4Percent = lipoCellPercent(battery.cell4Volt);
+    LOG_INFO("adcCallback: Read Battery cell 4");
+    adcSelectCell4Volt();
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    rawAdc = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+    battery.cell4Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    battery.cell4Percent = lipoCellPercent(battery.cell4Volt);
 
     double oldBatteryVolt = battery.batteryVolt;
 
@@ -433,7 +433,7 @@ void soundTimeCallback(void *argument)
   }
   HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
   /* USER CODE END soundTimeCallback */
-    }
+}
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
