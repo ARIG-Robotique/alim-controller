@@ -60,6 +60,9 @@ extern Alimentation externalAlim;
 
 extern Battery battery;
 
+extern bool externalAlimMonitored;
+extern bool batteryMonitored;
+
 extern bool au;
 
 /* USER CODE END ET */
@@ -154,12 +157,14 @@ void Error_Handler(void);
 #define ACS_RESOLUTION 90.0/1000.0
 
 // CAN Message ID
-#define SET_ALIM_2 1
-#define SET_ALIM_3 2
-#define GET_VERSION 3
-#define GET_AU_STATE 4
-#define GET_ALIMS_STATE 5
-#define GET_BATTERY_STATE 6
+#define SET_CONFIG 1
+#define SET_ALIM_2 2
+#define SET_ALIM_3 3
+#define GET_VERSION 5
+#define GET_AU_STATE 6
+#define GET_ALIM2_STATE 7
+#define GET_ALIM3_STATE 8
+#define GET_BATTERY_STATE 9
 #define GET_SOUND 10
 
 /* USER CODE END Private defines */

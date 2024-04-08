@@ -76,7 +76,7 @@ const osTimerAttr_t soundTime_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 void notifyAU(FDCAN_TxHeaderTypeDef txHeader);
-void notifyAlims(FDCAN_TxHeaderTypeDef txHeader);
+void notifyAlim(FDCAN_TxHeaderTypeDef txHeader, Alimentation alim, uint8_t canId);
 void notifyBattery(FDCAN_TxHeaderTypeDef txHeader);
 void notifyVersion(FDCAN_TxHeaderTypeDef txHeader);
 
@@ -157,6 +157,9 @@ void StartDefaultTask(void *argument)
   osTimerStart(soundTimeHandle, 0);
 
   LOG_INFO("mainTask: Init variables");
+  externalAlimMonitored = false;
+  batteryMonitored = false;
+
   internalAlim.tension = 0.0;
   internalAlim.current = 0.0;
   internalAlim.fault = false;
@@ -226,8 +229,11 @@ void StartDefaultTask(void *argument)
       if (RxHeader.Identifier == GET_AU_STATE) {
         notifyAU(TxHeader);
 
-      } else if (RxHeader.Identifier == GET_ALIMS_STATE) {
-        notifyAlims(TxHeader);
+      } else if (RxHeader.Identifier == GET_ALIM2_STATE) {
+        notifyAlim(TxHeader, internalAlim, GET_ALIM2_STATE);
+
+      } else if (RxHeader.Identifier == GET_ALIM3_STATE) {
+        notifyAlim(TxHeader, externalAlim, GET_ALIM3_STATE);
 
       } else if (RxHeader.Identifier == GET_BATTERY_STATE) {
         notifyBattery(TxHeader);
@@ -238,6 +244,10 @@ void StartDefaultTask(void *argument)
       } else if (RxHeader.Identifier == GET_SOUND) {
         LOG_INFO("mainTask: Sound");
         osTimerStart(soundTimeHandle, 0);
+
+      } else if (RxHeader.Identifier == SET_CONFIG) {
+        externalAlimMonitored = RxData[0] & 0x01;
+        batteryMonitored = RxData[0] & 0x02;
 
       } else if (RxHeader.Identifier == SET_ALIM_2) {
         bool enable = RxData[0] & 0x01;
@@ -332,9 +342,13 @@ void adcCallback(void *argument)
   HAL_ADC_Stop(&hadc1);
   internalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
 
-  LOG_INFO("adcCallback: Read ADC External Alim Volt");
-  adcSelectExternalAlimVolt();
-  HAL_ADC_Start(&hadc1);
+  LOG_INFO("adcCallback: Notify internal Alim");
+  notifyAlim(TxHeader, internalAlim, GET_ALIM2_STATE);
+
+  if (externalAlimMonitored) {
+    LOG_INFO("adcCallback: Read ADC External Alim Volt");
+    adcSelectExternalAlimVolt();
+    HAL_ADC_Start(&hadc1);
   HAL_ADC_PollForConversion(&hadc1, 1000);
   rawAdc = HAL_ADC_GetValue(&hadc1);
   HAL_ADC_Stop(&hadc1);
@@ -345,15 +359,17 @@ void adcCallback(void *argument)
   HAL_ADC_Start(&hadc1);
   HAL_ADC_PollForConversion(&hadc1, 1000);
   rawAdc = HAL_ADC_GetValue(&hadc1);
-  HAL_ADC_Stop(&hadc1);
-  externalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
+    HAL_ADC_Stop(&hadc1);
+    externalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
 
-  LOG_INFO("adcCallback: Notify Alims");
-  notifyAlims(TxHeader);
+    LOG_INFO("adcCallback: Notify external Alims");
+    notifyAlim(TxHeader, externalAlim, GET_ALIM3_STATE);
+  }
 
-  // Read battery
-  LOG_INFO("adcCallback: Read Battery cell 1");
-  adcSelectCell1Volt();
+  if (batteryMonitored) {
+    // Read battery
+    LOG_INFO("adcCallback: Read Battery cell 1");
+    adcSelectCell1Volt();
   HAL_ADC_Start(&hadc1);
   HAL_ADC_PollForConversion(&hadc1, 1000);
   rawAdc = HAL_ADC_GetValue(&hadc1);
@@ -388,14 +404,16 @@ void adcCallback(void *argument)
   battery.cell4Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
   battery.cell4Percent = lipoCellPercent(battery.cell4Volt);
 
-  double oldBatteryVolt = battery.batteryVolt;
+    double oldBatteryVolt = battery.batteryVolt;
 
-  battery.batteryVolt = battery.cell1Volt + battery.cell2Volt + battery.cell3Volt + battery.cell4Volt;
-  battery.batteryPercent = (battery.cell1Percent + battery.cell2Percent + battery.cell3Percent + battery.cell4Percent) / 4.0;
+    battery.batteryVolt = battery.cell1Volt + battery.cell2Volt + battery.cell3Volt + battery.cell4Volt;
+    battery.batteryPercent =
+            (battery.cell1Percent + battery.cell2Percent + battery.cell3Percent + battery.cell4Percent) / 4.0;
 
-  if (oldBatteryVolt != battery.batteryVolt) {
-    LOG_INFO("adcCallback: Notify Battery");
-    notifyBattery(TxHeader);
+    if (oldBatteryVolt != battery.batteryVolt) {
+      LOG_INFO("adcCallback: Notify Battery");
+      notifyBattery(TxHeader);
+    }
   }
 
   /* USER CODE END adcCallback */
@@ -433,36 +451,27 @@ void notifyAU(FDCAN_TxHeaderTypeDef txHeader) {
   }
 }
 
-void notifyAlims(FDCAN_TxHeaderTypeDef txHeader) {
-  LOG_INFO("notifyAlims");
+void notifyAlim(FDCAN_TxHeaderTypeDef txHeader, Alimentation alim, uint8_t canId) {
+  LOG_INFO("notifyAlim");
 
   // Notify
-  txHeader.Identifier = GET_ALIMS_STATE;
-  txHeader.DataLength = 9;
+  txHeader.Identifier = canId;
+  txHeader.DataLength = FDCAN_DLC_BYTES_5;
 
-  uint8_t txBuffer[9];
+  uint8_t txBuffer[5];
   uint16_t tension, current;
 
-  // 0-1   : Alim 1 tension
-  tension = internalAlim.tension * 100;
+  // 0-1   : Alim tension
+  tension = alim.tension * 100;
   txBuffer[0] = (tension >> 8) & 0xFF;
   txBuffer[1] = tension & 0xFF;
-  // 2-3   : Alim 1 current
-  current = internalAlim.current * 100;
+  // 2-3   : Alim current
+  current = alim.current * 100;
   txBuffer[2] = (current >> 8) & 0xFF;
   txBuffer[3] = current & 0xFF;
 
-  // 4-5  : Alim 2 tension
-  tension = externalAlim.tension * 100;
-  txBuffer[4] = (tension >> 8) & 0xFF;
-  txBuffer[5] = tension & 0xFF;
-  // 6-7 : Alim 2 current
-  current = externalAlim.current * 100;
-  txBuffer[6] = (current >> 8) & 0xFF;
-  txBuffer[7] = current & 0xFF;
-
   // 8    : 0 0 0 0 0 0 'ExternalAlim fault' 'Internal Alim fault'
-  txBuffer[8] = (externalAlim.fault << 1) + internalAlim.fault;
+  txBuffer[4] = alim.fault;
 
   if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, txBuffer) != HAL_OK) {
     /* Transmission request Error */
@@ -474,6 +483,8 @@ void notifyAlims(FDCAN_TxHeaderTypeDef txHeader) {
 void notifyBattery(FDCAN_TxHeaderTypeDef txHeader) {
   LOG_INFO("notifyBattery");
 
+  // FIXME: Default CAN not transmit more than 8 Bytes
+  /*
   // Notify
   txHeader.Identifier = GET_BATTERY_STATE;
   txHeader.DataLength = 20;
@@ -528,8 +539,9 @@ void notifyBattery(FDCAN_TxHeaderTypeDef txHeader) {
 
   if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, txBuffer) != HAL_OK) {
     /* Transmission request Error */
-    Error_Handler();
+    /*Error_Handler();
   }
+  */
 }
 
 void notifyVersion(FDCAN_TxHeaderTypeDef txHeader) {

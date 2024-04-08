@@ -53,6 +53,9 @@ Alimentation externalAlim;
 
 Battery battery;
 
+bool externalAlimMonitored;
+bool batteryMonitored;
+
 bool au;
 /* USER CODE END PV */
 
