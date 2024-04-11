@@ -157,8 +157,9 @@ void StartDefaultTask(void *argument)
   osTimerStart(soundTimeHandle, 0);
 
   LOG_INFO("mainTask: Init variables");
-  externalAlimMonitored = false;
-  batteryMonitored = false;
+  configuration.monitoredInternalAlim = false;
+  configuration.monitoredExternalAlim = false;
+  configuration.monitoredBattery = false;
 
   internalAlim.tension = 0.0;
   internalAlim.current = 0.0;
@@ -246,8 +247,9 @@ void StartDefaultTask(void *argument)
         osTimerStart(soundTimeHandle, 0);
 
       } else if (RxHeader.Identifier == SET_CONFIG) {
-        externalAlimMonitored = RxData[0] & 0x01;
-        batteryMonitored = RxData[0] & 0x02;
+        configuration.monitoredInternalAlim = RxData[0] & 0x01;
+        configuration.monitoredExternalAlim = RxData[0] & 0x02;
+        configuration.monitoredBattery = RxData[0] & 0x04;
 
       } else if (RxHeader.Identifier == SET_ALIM_2) {
         bool enable = RxData[0] & 0x01;
@@ -325,7 +327,10 @@ void adcCallback(void *argument)
 
   uint32_t rawAdc;
 
-  // Read ADC Alims
+  if (configuration.monitoredInternalAlim) {
+    double oldTension = internalAlim.tension;
+    double oldCurrent = internalAlim.current;
+
   LOG_INFO("adcCallback: Read ADC Internal Alim Volt");
   adcSelectInternalAlimVolt();
   HAL_ADC_Start(&hadc1);
@@ -342,10 +347,16 @@ void adcCallback(void *argument)
   HAL_ADC_Stop(&hadc1);
   internalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
 
+    if (internalAlim.current != oldCurrent || internalAlim.tension != oldTension) {
   LOG_INFO("adcCallback: Notify internal Alim");
   notifyAlim(TxHeader, internalAlim, GET_ALIM2_STATE);
+    }
+  }
 
-  if (externalAlimMonitored) {
+  if (configuration.monitoredExternalAlim) {
+    double oldTension = externalAlim.tension;
+    double oldCurrent = externalAlim.current;
+
     LOG_INFO("adcCallback: Read ADC External Alim Volt");
     adcSelectExternalAlimVolt();
     HAL_ADC_Start(&hadc1);
@@ -362,11 +373,13 @@ void adcCallback(void *argument)
     HAL_ADC_Stop(&hadc1);
     externalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
 
+    if (externalAlim.current != oldCurrent || externalAlim.tension != oldTension) {
     LOG_INFO("adcCallback: Notify external Alims");
     notifyAlim(TxHeader, externalAlim, GET_ALIM3_STATE);
+    }
   }
 
-  if (batteryMonitored) {
+  if (configuration.monitoredBattery) {
     // Read battery
     LOG_INFO("adcCallback: Read Battery cell 1");
     adcSelectCell1Volt();
@@ -405,12 +418,12 @@ void adcCallback(void *argument)
     battery.cell4Percent = lipoCellPercent(battery.cell4Volt);
 
     double oldBatteryVolt = battery.batteryVolt;
-
+    double oldBatteryPercent = battery.batteryPercent;
     battery.batteryVolt = battery.cell1Volt + battery.cell2Volt + battery.cell3Volt + battery.cell4Volt;
     battery.batteryPercent =
             (battery.cell1Percent + battery.cell2Percent + battery.cell3Percent + battery.cell4Percent) / 4.0;
 
-    if (oldBatteryVolt != battery.batteryVolt) {
+    if (oldBatteryVolt != battery.batteryVolt || oldBatteryPercent != battery.batteryPercent) {
       LOG_INFO("adcCallback: Notify Battery");
       notifyBattery(TxHeader);
     }
@@ -477,7 +490,6 @@ void notifyAlim(FDCAN_TxHeaderTypeDef txHeader, Alimentation alim, uint8_t canId
     /* Transmission request Error */
     Error_Handler();
   }
-
 }
 
 void notifyBattery(FDCAN_TxHeaderTypeDef txHeader) {
@@ -567,4 +579,3 @@ double lipoCellPercent(double tension){
   return (tension - 3.0) / 1.2 * 100;
 }
 /* USER CODE END Application */
-

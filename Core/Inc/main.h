@@ -55,13 +55,18 @@ typedef struct {
     double batteryPercent;
 } Battery;
 
+typedef struct {
+    bool monitoredInternalAlim;
+    bool monitoredExternalAlim;
+    bool monitoredBattery;
+} Configuration;
+
 extern Alimentation internalAlim;
 extern Alimentation externalAlim;
 
 extern Battery battery;
 
-extern bool externalAlimMonitored;
-extern bool batteryMonitored;
+extern Configuration configuration;
 
 extern bool au;
 
