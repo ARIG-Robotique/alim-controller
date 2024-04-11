@@ -331,25 +331,25 @@ void adcCallback(void *argument)
     double oldTension = internalAlim.tension;
     double oldCurrent = internalAlim.current;
 
-  LOG_INFO("adcCallback: Read ADC Internal Alim Volt");
-  adcSelectInternalAlimVolt();
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 1000);
-  rawAdc = HAL_ADC_GetValue(&hadc1);
-  HAL_ADC_Stop(&hadc1);
-  internalAlim.tension = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    LOG_INFO("adcCallback: Read ADC Internal Alim Volt");
+    adcSelectInternalAlimVolt();
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    rawAdc = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+    internalAlim.tension = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
 
-  LOG_INFO("adcCallback: Read ADC Internal Alim Current");
-  adcSelectInternalAlimCurrent();
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 1000);
-  rawAdc = HAL_ADC_GetValue(&hadc1);
-  HAL_ADC_Stop(&hadc1);
-  internalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
+    LOG_INFO("adcCallback: Read ADC Internal Alim Current");
+    adcSelectInternalAlimCurrent();
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    rawAdc = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+    internalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
 
     if (internalAlim.current != oldCurrent || internalAlim.tension != oldTension) {
-  LOG_INFO("adcCallback: Notify internal Alim");
-  notifyAlim(TxHeader, internalAlim, GET_ALIM2_STATE);
+      LOG_INFO("adcCallback: Notify internal Alim");
+      notifyAlim(TxHeader, internalAlim, GET_ALIM2_STATE);
     }
   }
 
@@ -374,8 +374,8 @@ void adcCallback(void *argument)
     externalAlim.current = (rawAdc / ADC_RESOLUTION) * V_REF * ACS_RESOLUTION;
 
     if (externalAlim.current != oldCurrent || externalAlim.tension != oldTension) {
-    LOG_INFO("adcCallback: Notify external Alims");
-    notifyAlim(TxHeader, externalAlim, GET_ALIM3_STATE);
+      LOG_INFO("adcCallback: Notify external Alims");
+      notifyAlim(TxHeader, externalAlim, GET_ALIM3_STATE);
     }
   }
 
@@ -387,7 +387,7 @@ void adcCallback(void *argument)
     HAL_ADC_PollForConversion(&hadc1, 1000);
     rawAdc = HAL_ADC_GetValue(&hadc1);
     HAL_ADC_Stop(&hadc1);
-    battery.cell1Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    battery.cell1Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / GAIN_DIFFERENTIEL);
     battery.cell1Percent = lipoCellPercent(battery.cell1Volt);
 
     LOG_INFO("adcCallback: Read Battery cell 2");
@@ -396,7 +396,7 @@ void adcCallback(void *argument)
     HAL_ADC_PollForConversion(&hadc1, 1000);
     rawAdc = HAL_ADC_GetValue(&hadc1);
     HAL_ADC_Stop(&hadc1);
-    battery.cell2Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    battery.cell2Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / GAIN_DIFFERENTIEL);
     battery.cell2Percent = lipoCellPercent(battery.cell2Volt);
 
     LOG_INFO("adcCallback: Read Battery cell 3");
@@ -405,7 +405,7 @@ void adcCallback(void *argument)
     HAL_ADC_PollForConversion(&hadc1, 1000);
     rawAdc = HAL_ADC_GetValue(&hadc1);
     HAL_ADC_Stop(&hadc1);
-    battery.cell3Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    battery.cell3Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / GAIN_DIFFERENTIEL);
     battery.cell3Percent = lipoCellPercent(battery.cell3Volt);
 
     LOG_INFO("adcCallback: Read Battery cell 4");
@@ -414,7 +414,7 @@ void adcCallback(void *argument)
     HAL_ADC_PollForConversion(&hadc1, 1000);
     rawAdc = HAL_ADC_GetValue(&hadc1);
     HAL_ADC_Stop(&hadc1);
-    battery.cell4Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / DIVISEUR_TENSION);
+    battery.cell4Volt = (rawAdc / ADC_RESOLUTION) * (V_REF / GAIN_DIFFERENTIEL);
     battery.cell4Percent = lipoCellPercent(battery.cell4Volt);
 
     double oldBatteryVolt = battery.batteryVolt;
@@ -471,7 +471,7 @@ void notifyAlim(FDCAN_TxHeaderTypeDef txHeader, Alimentation alim, uint8_t canId
   txHeader.Identifier = canId;
   txHeader.DataLength = FDCAN_DLC_BYTES_5;
 
-  uint8_t txBuffer[5];
+  uint8_t txBuffer[FDCAN_DLC_BYTES_5];
   uint16_t tension, current;
 
   // 0-1   : Alim tension
@@ -495,65 +495,27 @@ void notifyAlim(FDCAN_TxHeaderTypeDef txHeader, Alimentation alim, uint8_t canId
 void notifyBattery(FDCAN_TxHeaderTypeDef txHeader) {
   LOG_INFO("notifyBattery");
 
-  // FIXME: Default CAN not transmit more than 8 Bytes
-  /*
   // Notify
   txHeader.Identifier = GET_BATTERY_STATE;
-  txHeader.DataLength = 20;
+  txHeader.DataLength = FDCAN_DLC_BYTES_4;
 
-  uint8_t txBuffer[20];
+  uint8_t txBuffer[FDCAN_DLC_BYTES_4];
   uint16_t tension, percent;
 
-  // 0-1   : Cell 1 tension
-  tension = battery.cell1Volt * 100;
+  // 0-1 : Battery tension
+  tension = battery.batteryVolt * 100;
   txBuffer[0] = (tension >> 8) & 0xFF;
   txBuffer[1] = tension & 0xFF;
-  // 2-3   : Cell 1 percent
-  percent = battery.cell1Percent * 100;
+  // 2-3 : Battery percent
+  percent = battery.batteryPercent * 100;
   txBuffer[2] = (percent >> 8) & 0xFF;
   txBuffer[3] = percent & 0xFF;
 
-  // 4-5   : Cell 2 tension
-  tension = battery.cell2Volt * 100;
-  txBuffer[4] = (tension >> 8) & 0xFF;
-  txBuffer[5] = tension & 0xFF;
-  // 6-7   : Cell 2 percent
-  percent = battery.cell2Percent * 100;
-  txBuffer[6] = (percent >> 8) & 0xFF;
-  txBuffer[7] = percent & 0xFF;
-
-  // 8-9   : Cell 3 tension
-  tension = battery.cell3Volt * 100;
-  txBuffer[8] = (tension >> 8) & 0xFF;
-  txBuffer[9] = tension & 0xFF;
-  // 10-11 : Cell 3 percent
-  percent = battery.cell3Percent * 100;
-  txBuffer[10] = (percent >> 8) & 0xFF;
-  txBuffer[11] = percent & 0xFF;
-
-  // 12-13 : Cell 4 tension
-  tension = battery.cell4Volt * 100;
-  txBuffer[12] = (tension >> 8) & 0xFF;
-  txBuffer[13] = tension & 0xFF;
-  // 14-15 : Cell 4 percent
-  percent = battery.cell4Percent * 100;
-  txBuffer[14] = (percent >> 8) & 0xFF;
-  txBuffer[15] = percent & 0xFF;
-
-  // 16-17 : Battery tension
-  tension = battery.batteryVolt * 100;
-  txBuffer[16] = (tension >> 8) & 0xFF;
-  txBuffer[17] = tension & 0xFF;
-  // 18-19 : Battery percent
-  percent = battery.batteryPercent * 100;
-  txBuffer[18] = (percent >> 8) & 0xFF;
-  txBuffer[19] = percent & 0xFF;
-
   if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, txBuffer) != HAL_OK) {
     /* Transmission request Error */
-    /*Error_Handler();
+    Error_Handler();
   }
-  */
+
 }
 
 void notifyVersion(FDCAN_TxHeaderTypeDef txHeader) {
@@ -575,7 +537,41 @@ void notifyVersion(FDCAN_TxHeaderTypeDef txHeader) {
 }
 
 double lipoCellPercent(double tension){
-  // TODO : Bad formula
-  return (tension - 3.0) / 1.2 * 100;
+  // Fonctions affine déduite des données suivantes :
+  // %	  U
+  // 0	  3.0
+  // 5	  3.3
+  // 10	  3.6
+  // 20	  3.7
+  // 30	  3.75
+  // 40	  3.79
+  // 50	  3.83
+  // 60	  3.87
+  // 70	  3.92
+  // 80	  3.97
+  // 90	  4.1
+  // 100	4.2
+  //
+  // Region 1 : y = 0.035 x + 3
+  // Region 2 : y = 0.00528 x + 3.54714
+  // Region 3 : y = 0.0115 x + 3.05
+
+  // y = m * x + b
+  // x = y - b / a
+  // y = tension
+  // x = percent
+  double m;
+  double b;
+  if (tension <= 3.6) {
+    m = 0.035;
+    b = 3;
+  } else if (tension > 3.6 && tension <= 3.97) {
+    m = 0.00528;
+    b = 3.54714;
+  } else {
+    m = 0.0115;
+    b = 3.05;
+  }
+  return (tension - b) / m;
 }
 /* USER CODE END Application */

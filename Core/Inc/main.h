@@ -144,6 +144,12 @@ void Error_Handler(void);
 // Vo = Vi * R1 / (R1 + R2) = Vi * 0.243243243
 #define DIVISEUR_TENSION 0.243243243
 
+// Valeur de conversion des ampli op differentiel
+// R1 = 10K ; Rf = 7,5K
+// Vo = k * Vi
+// k = 3/4 = 0,75
+#define GAIN_DIFFERENTIEL 0.75
+
 // Pourcentage des céllule LIPO
 #define CELL_100 4.20
 #define CELL_90 4.10
