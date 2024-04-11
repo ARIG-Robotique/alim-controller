@@ -150,20 +150,6 @@ void Error_Handler(void);
 // k = 3/4 = 0,75
 #define GAIN_DIFFERENTIEL 0.75
 
-// Pourcentage des céllule LIPO
-#define CELL_100 4.20
-#define CELL_90 4.10
-#define CELL_80 3.97
-#define CELL_70 3.92
-#define CELL_60 3.87
-#define CELL_50 3.83
-#define CELL_40 3.79
-#define CELL_30 3.75
-#define CELL_20 3.7
-#define CELL_10 3.6
-#define CELL_5 3.3
-#define CELL_0 3.0
-
 // Résolution pour le courant de l'ACS711 15A alimenté en 3.3V, 90mV / A
 #define ACS_RESOLUTION 90.0/1000.0
 

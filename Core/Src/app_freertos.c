@@ -197,12 +197,13 @@ void StartDefaultTask(void *argument)
   TxHeader.FDFormat = FDCAN_CLASSIC_CAN;
   TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
   TxHeader.MessageMarker = 0;
+  TxHeader.Identifier = 0;
+  TxHeader.DataLength = 0;
 
   bool auPrec = -1;
 
   /* Infinite loop */
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
+  // ReSharper disable once CppDFAEndlessLoop
   while(true) {
     LOG_INFO("mainTask: Read AU");
     au = HAL_GPIO_ReadPin(AU_GPIO_Port, AU_Pin) == GPIO_PIN_RESET;
@@ -272,7 +273,6 @@ void StartDefaultTask(void *argument)
     }
     osDelay(50);
   }
-#pragma clang diagnostic pop
   /* USER CODE END StartDefaultTask */
 }
 

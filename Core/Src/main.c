@@ -120,16 +120,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
-  while (1)
+  // ReSharper disable once CppDFAEndlessLoop
+  while (true)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
     LOG_WARN("main: Execution après init de FreeRTOS. Tres bizarre");
   }
-#pragma clang diagnostic pop
   /* USER CODE END 3 */
 }
 
@@ -210,12 +208,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
+  LOG_ERROR("main: ERROR HANDLER");
+
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  LOG_ERROR("main: ERROR HANDLER");
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
-  while (1)
+
+  // ReSharper disable once CppDFAEndlessLoop
+  while (true)
   {
     HAL_GPIO_WritePin(HEART_BEAT_GPIO_Port, HEART_BEAT_Pin, GPIO_PIN_RESET);
     osDelay(1000);
@@ -224,7 +223,6 @@ void Error_Handler(void)
       osDelay(100);
     }
   }
-#pragma clang diagnostic pop
   /* USER CODE END Error_Handler_Debug */
 }
 

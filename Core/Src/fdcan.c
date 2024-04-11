@@ -77,6 +77,7 @@ void MX_FDCAN1_Init(void)
     FDCAN_REJECT_REMOTE,
     FDCAN_REJECT_REMOTE
   );
+
   /* USER CODE END FDCAN1_Init 2 */
 
 }
