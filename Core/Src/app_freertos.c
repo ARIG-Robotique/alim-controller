@@ -68,9 +68,9 @@ const osTimerAttr_t adcTimer_attributes = {
   .name = "adcTimer"
 };
 /* Definitions for soundTime */
-osTimerId_t soundTimeHandle;
-const osTimerAttr_t soundTime_attributes = {
-  .name = "soundTime"
+osTimerId_t soundTimerHandle;
+const osTimerAttr_t soundTimer_attributes = {
+  .name = "soundTimer"
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -86,7 +86,7 @@ double lipoCellPercent(double tension);
 void StartDefaultTask(void *argument);
 void heartBeatCallback(void *argument);
 void adcCallback(void *argument);
-void soundTimeCallback(void *argument);
+void soundCallback(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -115,8 +115,8 @@ void MX_FREERTOS_Init(void) {
   /* creation of adcTimer */
   adcTimerHandle = osTimerNew(adcCallback, osTimerPeriodic, NULL, &adcTimer_attributes);
 
-  /* creation of soundTime */
-  soundTimeHandle = osTimerNew(soundTimeCallback, osTimerOnce, NULL, &soundTime_attributes);
+  /* creation of soundTimer */
+  soundTimerHandle = osTimerNew(soundCallback, osTimerOnce, NULL, &soundTimer_attributes);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -152,9 +152,9 @@ void StartDefaultTask(void *argument)
   /* USER CODE BEGIN StartDefaultTask */
   LOG_INFO("mainTask: Start");
 
-  // Buzzer sound works
+  // Buzzer sounds works
   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 27450);
-  osTimerStart(soundTimeHandle, 0);
+  osTimerStart(soundTimerHandle, 0);
 
   LOG_INFO("mainTask: Init variables");
   configuration.monitoredInternalAlim = false;
@@ -244,7 +244,7 @@ void StartDefaultTask(void *argument)
 
       } else if (RxHeader.Identifier == GET_SOUND) {
         LOG_INFO("mainTask: Sound");
-        osTimerStart(soundTimeHandle, 0);
+        osTimerStart(soundTimerHandle, 0);
 
       } else if (RxHeader.Identifier == SET_CONFIG) {
         configuration.monitoredInternalAlim = RxData[0] & 0x01;
@@ -432,10 +432,10 @@ void adcCallback(void *argument)
   /* USER CODE END adcCallback */
 }
 
-/* soundTimeCallback function */
-void soundTimeCallback(void *argument)
+/* soundCallback function */
+void soundCallback(void *argument)
 {
-  /* USER CODE BEGIN soundTimeCallback */
+  /* USER CODE BEGIN soundCallback */
   for (int i = 0 ; i < 10 ; i++) {
     if (i % 2) {
       HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
@@ -445,7 +445,7 @@ void soundTimeCallback(void *argument)
     osDelay(100);
   }
   HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
-  /* USER CODE END soundTimeCallback */
+  /* USER CODE END soundCallback */
 }
 
 /* Private application code --------------------------------------------------*/
