@@ -438,7 +438,7 @@ __STATIC_INLINE uint32_t LL_CPUID_GetVariant(void)
 }
 
 /**
-  * @brief  Get Architecture number 
+  * @brief  Get Architecture number
   * @rmtoll SCB_CPUID    ARCHITECTURE  LL_CPUID_GetArchitecture
   * @retval Value should be equal to 0xF for Cortex-M4 devices
   */
@@ -634,4 +634,3 @@ __STATIC_INLINE void LL_MPU_DisableRegion(uint32_t Region)
 #endif
 
 #endif /* __STM32G4xx_LL_CORTEX_H */
-

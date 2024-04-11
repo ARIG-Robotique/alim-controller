@@ -58,4 +58,3 @@ void adcSelectCell4Volt(void);
 #endif
 
 #endif /* __ADC_H__ */
-

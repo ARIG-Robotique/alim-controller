@@ -2995,4 +2995,3 @@ uint32_t    LL_RCC_GetQUADSPIClockFreq(uint32_t QUADSPIxSource);
 #endif
 
 #endif /* STM32G4xx_LL_RCC_H */
-

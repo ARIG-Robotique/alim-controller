@@ -1603,4 +1603,3 @@ void              HAL_RCCEx_CRS_ErrorCallback(uint32_t Error);
 #endif
 
 #endif /* STM32G4xx_HAL_RCC_EX_H */
-
