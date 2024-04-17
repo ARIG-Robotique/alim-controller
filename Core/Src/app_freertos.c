@@ -153,7 +153,7 @@ void StartDefaultTask(void *argument)
   LOG_INFO("mainTask: Start");
 
   // Buzzer sounds works
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 27450);
+  htim2.Instance->CCR1 = 27450;
   osTimerStart(soundTimerHandle, 0);
 
   LOG_INFO("mainTask: Init variables");
