@@ -153,7 +153,6 @@ void StartDefaultTask(void *argument)
   LOG_INFO("mainTask: Start");
 
   // Buzzer sounds works
-  htim2.Instance->CCR1 = 27450;
   osTimerStart(soundTimerHandle, 0);
 
   LOG_INFO("mainTask: Init variables");
@@ -438,12 +437,14 @@ void soundCallback(void *argument)
   /* USER CODE BEGIN soundCallback */
   for (int i = 0 ; i < 10 ; i++) {
     if (i % 2) {
-      HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+      htim2.Instance->CCR1 = 27450;
     } else {
-      HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
+      htim2.Instance->CCR1 = 0;
     }
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
     osDelay(100);
   }
+  htim2.Instance->CCR1 = 0;
   HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
   /* USER CODE END soundCallback */
 }
