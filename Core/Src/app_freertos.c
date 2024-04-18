@@ -67,11 +67,6 @@ osTimerId_t adcTimerHandle;
 const osTimerAttr_t adcTimer_attributes = {
   .name = "adcTimer"
 };
-/* Definitions for soundTimer */
-osTimerId_t soundTimerHandle;
-const osTimerAttr_t soundTimer_attributes = {
-  .name = "soundTimer"
-};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -86,7 +81,6 @@ double lipoCellPercent(double tension);
 void StartDefaultTask(void *argument);
 void heartBeatCallback(void *argument);
 void adcCallback(void *argument);
-void soundCallback(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -114,9 +108,6 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of adcTimer */
   adcTimerHandle = osTimerNew(adcCallback, osTimerPeriodic, NULL, &adcTimer_attributes);
-
-  /* creation of soundTimer */
-  soundTimerHandle = osTimerNew(soundCallback, osTimerOnce, NULL, &soundTimer_attributes);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -152,15 +143,18 @@ void StartDefaultTask(void *argument)
   /* USER CODE BEGIN StartDefaultTask */
   LOG_INFO("mainTask: Start");
 
-  // Buzzer sounds works
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 27450);
-  osTimerStart(soundTimerHandle, 0);
-
-  // Warn led works
-  for (int i = 0 ; i < 5 ; i++) {
+  // Buzzer sounds & warn leds works
+  htim2.Instance->CCR1 = 27450;
+  for (int i = 0 ; i < 10 ; i++) {
+    if (i % 2) {
+      HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+    } else {
+      HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
+    }
     HAL_GPIO_TogglePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin);
     osDelay(100);
   }
+  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
   HAL_GPIO_WritePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin, GPIO_PIN_RESET);
 
   LOG_INFO("mainTask: Init variables");
@@ -252,7 +246,14 @@ void StartDefaultTask(void *argument)
 
       } else if (RxHeader.Identifier == GET_SOUND) {
         LOG_INFO("mainTask: Sound");
-        osTimerStart(soundTimerHandle, 0);
+        for (int i = 0 ; i < 5 ; i++) {
+          if (i % 2) {
+            HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+          } else {
+            HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
+          }
+          osDelay(100);
+        }
 
       } else if (RxHeader.Identifier == SET_CONFIG) {
         configuration.monitoredInternalAlim = RxData[0] & 0x01;
@@ -437,22 +438,6 @@ void adcCallback(void *argument)
   }
 
   /* USER CODE END adcCallback */
-}
-
-/* soundCallback function */
-void soundCallback(void *argument)
-{
-  /* USER CODE BEGIN soundCallback */
-  for (int i = 0 ; i < 10 ; i++) {
-    if (i % 2) {
-      HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-    } else {
-      HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
-    }
-    osDelay(100);
-  }
-  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
-  /* USER CODE END soundCallback */
 }
 
 /* Private application code --------------------------------------------------*/
