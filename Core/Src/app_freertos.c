@@ -67,7 +67,7 @@ osTimerId_t adcTimerHandle;
 const osTimerAttr_t adcTimer_attributes = {
   .name = "adcTimer"
 };
-/* Definitions for soundTimer */
+/* Definitions for soundTime */
 osTimerId_t soundTimerHandle;
 const osTimerAttr_t soundTimer_attributes = {
   .name = "soundTimer"
