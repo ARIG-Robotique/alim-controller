@@ -155,6 +155,13 @@ void StartDefaultTask(void *argument)
   // Buzzer sounds works
   osTimerStart(soundTimerHandle, 0);
 
+  // Warn led works
+  for (int i = 0 ; i < 5 ; i++) {
+    HAL_GPIO_TogglePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin);
+    osDelay(100);
+  }
+  HAL_GPIO_WritePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin, GPIO_PIN_RESET);
+
   LOG_INFO("mainTask: Init variables");
   configuration.monitoredInternalAlim = false;
   configuration.monitoredExternalAlim = false;
