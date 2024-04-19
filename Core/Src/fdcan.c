@@ -69,14 +69,14 @@ void MX_FDCAN1_Init(void)
   sFilterConfig.FilterID1 = 1;
   sFilterConfig.FilterID2 = 10;
 
-  HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilterConfig);
-  HAL_FDCAN_ConfigGlobalFilter(
-    &hfdcan1,
-    FDCAN_REJECT,
-    FDCAN_REJECT,
-    FDCAN_REJECT_REMOTE,
-    FDCAN_REJECT_REMOTE
-  );
+  if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilterConfig) != HAL_OK) {
+    Error_Handler();
+  }
+  if (HAL_FDCAN_ConfigGlobalFilter(&hfdcan1,
+    FDCAN_REJECT, FDCAN_REJECT,
+    FDCAN_REJECT_REMOTE, FDCAN_REJECT_REMOTE) != HAL_OK) {
+    Error_Handler();
+  }
 
   /* USER CODE END FDCAN1_Init 2 */
 
