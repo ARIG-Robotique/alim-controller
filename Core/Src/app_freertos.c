@@ -303,7 +303,7 @@ void heartBeatCallback(void *argument)
   }
 
   // Alim in fault or battery low
-  if (internalAlim.fault || externalAlim.fault || battery.batteryPercent < 25) {
+  if (battery.batteryPercent < 25) {
     // Alim en erreur
     for (int i = 0 ; i < 5 ; i++) {
       HAL_GPIO_TogglePin(WARN_BATT_GPIO_Port, WARN_BATT_Pin);
@@ -330,8 +330,8 @@ void adcCallback(void *argument)
   TxHeader.MessageMarker = 0;
 
   // Read fault
-  internalAlim.fault = HAL_GPIO_ReadPin(FAULT_2_GPIO_Port, FAULT_2_Pin) == GPIO_PIN_RESET;
-  externalAlim.fault = HAL_GPIO_ReadPin(FAULT_3_GPIO_Port, FAULT_3_Pin) == GPIO_PIN_RESET;
+  internalAlim.fault = false; // HAL_GPIO_ReadPin(FAULT_2_GPIO_Port, FAULT_2_Pin) == GPIO_PIN_RESET;
+  externalAlim.fault = false; // HAL_GPIO_ReadPin(FAULT_3_GPIO_Port, FAULT_3_Pin) == GPIO_PIN_RESET;
 
   uint32_t rawAdc;
 
