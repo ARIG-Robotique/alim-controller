@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-void print(char _char, uint8_t level) {
+void itmPrint(char _char, uint8_t level) {
 #ifdef DEBUG_MODE
   while (ITM->PORT[level].u32 == 0UL) {
     __NOP();
@@ -15,14 +15,14 @@ void print(char _char, uint8_t level) {
 #endif
 }
 
-void println(const char *msg, uint8_t level) {
+void itmPrintLn(const char *msg, uint8_t level) {
 #ifdef DEBUG_MODE
   if (msg == NULL || level > 31 || level < LOG_LEVEL_MIN) {
     return;
   }
   for (int i = 0; i < strlen(msg); i++) {
-    print(msg[i], level);
+    itmPrint(msg[i], level);
   }
-  print('\n', level);
+  itmPrint('\n', level);
 #endif
 }

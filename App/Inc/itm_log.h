@@ -20,14 +20,14 @@ extern "C" {
 
 #define LOG_LEVEL_MIN LOG_WARN_LEVEL
 
-#define LOG_DEBUG(msg) println(msg, LOG_DEBUG_LEVEL)
-#define LOG_INFO(msg) println(msg, LOG_INFO_LEVEL)
-#define LOG_WARN(msg) println(msg, LOG_WARN_LEVEL)
-#define LOG_ERROR(msg) println(msg, LOG_ERROR_LEVEL)
+#define LOG_DEBUG(msg) itmPrintLn(msg, LOG_DEBUG_LEVEL)
+#define LOG_INFO(msg) itmPrintLn(msg, LOG_INFO_LEVEL)
+#define LOG_WARN(msg) itmPrintLn(msg, LOG_WARN_LEVEL)
+#define LOG_ERROR(msg) itmPrintLn(msg, LOG_ERROR_LEVEL)
 
-void print(char _char, uint8_t level);
+void itmPrint(char _char, uint8_t level);
 
-void println(const char *msg, uint8_t level);
+void itmPrintLn(const char *msg, uint8_t level);
 
 #ifdef __cplusplus
 }

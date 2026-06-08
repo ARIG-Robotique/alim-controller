@@ -61,15 +61,28 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
 )
 
+# Collect user sources and includes from the App folder
+file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_LIST_DIR}/App/Src/*.c"
+)
+file(GLOB_RECURSE APP_HEADERS CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_LIST_DIR}/App/Inc/*.h"
+)
+set(APP_INCLUDE_DIRS "")
+foreach(_header ${APP_HEADERS})
+    get_filename_component(_dir ${_header} DIRECTORY)
+    list(APPEND APP_INCLUDE_DIRS ${_dir})
+endforeach()
+list(REMOVE_DUPLICATES APP_INCLUDE_DIRS)
+
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    # Add user sources here
-    Core/Src/itm_log.c
+    ${APP_SOURCES}
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    # Add user defined include paths
+    ${APP_INCLUDE_DIRS}
 )
 
 # Add project symbols (macros)
